@@ -39,6 +39,24 @@ export function Content() {
                             {message.sender_type === "me" ? (
                                 <div className="flex items-end justify-end">
                                     <div className="message-bubble bg-indigo-600 text-white p-4 rounded-2xl rounded-br-sm shadow-md">
+                                        {(message.attachment != "" && message.attachment != "NULL") && <>
+                                            {message.attachment_type === "image" ? (
+                                                <img src={"../uploads/" + message.attachment} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <a
+                                                    href={"download.php?id=" + message.id}
+                                                    target="_blank"
+                                                    download={true}
+                                                    className="text-sm px-3 py-2 rounded"
+                                                    style={{
+                                                        border: "rgba(0,0,0,.1) solid 1px",
+                                                        backgroundColor: "rgba(255,255,255,.1)"
+                                                    }}
+                                                >
+                                                    {message.message}
+                                                </a>
+                                            )}
+                                        </>}
                                         <p className="text-sm">{message.message}</p>
                                         <div className="flex justify-end items-center gap-1 mt-1">
                                             <span className="text-[10px] text-indigo-200">{message.ago}</span>
@@ -57,6 +75,24 @@ export function Content() {
                                         }}
                                     />
                                     <div className="message-bubble bg-white text-gray-700 p-4 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100">
+                                        {(message.attachment != "" && message.attachment != "NULL") && <>
+                                            {message.attachment_type === "image" ? (
+                                                <img src={"../uploads/" + message.attachment} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <a
+                                                    href={"download.php?id=" + message.id}
+                                                    target="_blank"
+                                                    download={true}
+                                                    className="text-sm px-3 py-2 rounded"
+                                                    style={{
+                                                        border: "rgba(0,0,0,.1) solid 1px",
+                                                        backgroundColor: "rgba(255,255,255,.1)"
+                                                    }}
+                                                >
+                                                    {message.message}
+                                                </a>
+                                            )}
+                                        </>}
                                         <p className="text-sm">{message.message}</p>
                                         <span className="text-[10px] text-gray-400 block mt-1 text-right">{message.ago}</span>
                                     </div>

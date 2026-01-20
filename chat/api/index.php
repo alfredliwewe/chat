@@ -203,6 +203,15 @@ elseif (isset($_GET['getMessages'])) {
         if(!$is_you_the_sender){
             array_push($to_mark_read, $row['id']);
         }
+
+        if($row['attachment'] != ''){
+            $ext = pathinfo($row['attachment'], PATHINFO_EXTENSION);
+            $row['attachment_type'] = "file";
+            if(in_array($ext, $img_extensions)){
+                $row['attachment_type'] = "image";
+            }
+        }
+
         array_push($rows, $row);
     }
 

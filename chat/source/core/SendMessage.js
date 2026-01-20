@@ -238,7 +238,6 @@ function FileUploader({ friend, onSuccess }) {
                     id="file-upload"
                     type="file"
                     multiple
-                    accept="image/*" // Only allow image files
                     onChange={handleFileChange}
                     ref={fileInputRef}
                     disabled={uploading} // Disable input while uploading
