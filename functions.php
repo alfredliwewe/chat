@@ -87,8 +87,10 @@ function db_update($table, $cv, $where){
 		}
 	}
 
+	$count = count(db_query("SELECT * FROM `$table` WHERE ".implode(" AND ", $whereClause)));
+
 	$db->query("UPDATE `$table` SET ".implode(", ", $contentValues)." WHERE ".implode(" AND ", $whereClause));
-	return $db->affected_rows;
+	return $count;
 }
 
 function getData($table, $array){
@@ -260,6 +262,7 @@ function db_get_count($table, $col, $ref=null){
 	return (int)($db->query("SELECT COUNT(`$col`) AS count_all FROM `$table` $wheres_str")->fetch_assoc()['count_all']);
 }
 
+
 class Crypto{
 	public static function uid($length)
 	{
@@ -281,6 +284,16 @@ class Crypto{
 		return $str;
 	}
 
+	public static function numbers($length)
+	{
+		$characters = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+		$str = "";
+		for ($i=0; $i < $length; $i++) { 
+			$str .= $characters[rand(0,count($characters)-1)];
+		}
+		return $str;
+	}
+
 	public static function letters($length)
 	{
 		$characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
@@ -290,7 +303,20 @@ class Crypto{
 		}
 		return $str;
 	}
+
+	public static function random_filename($parts=2,$chunk_size=8){
+		//generate numbers filename separated by _ 
+		$filename = "";
+		for ($i=0; $i < $parts; $i++) { 
+			$filename .= Crypto::numbers($chunk_size);
+			if ($i < $parts-1) {
+				$filename .= "_";
+			}
+		}
+		return $filename;
+	}
 }
+
 
 function guidv4($data = null) {
     // Generate 16 bytes (128 bits) of random data or use the data passed into the function.

@@ -21,6 +21,47 @@ if(isset($_GET['getUser'])){
 
     JSON::dump($data);
 }
+elseif (isset($_FILES['change_picture'])) {
+    $filename = $_FILES['change_picture']['name'];
+    $filename = Crypto::random_filename().".".pathinfo($filename, PATHINFO_EXTENSION);
+    move_uploaded_file($_FILES['change_picture']['tmp_name'], "../../uploads/".$filename);
+
+    db_update("users", ['picture' => $filename], ['id' => $user_id]);
+
+    echo json_encode([
+        'status' => true, 
+        'message' => "Success",
+        'data' => getData("users", ['id' => $user_id]),
+        'filename' => $filename,
+        'picture' => $filename
+    ]);
+}
+elseif(isset($_POST['updateUser'], $_POST['data'])){
+    $data = json_decode($_POST['data'], true);
+
+    //check if there are any changes at all
+    if($data['name'] == $_SESSION['user']['name'] && $data['phone'] == $_SESSION['user']['phone'] && $data['email'] == $_SESSION['user']['email']){
+        echo json_encode([
+            'status' => false, 
+            'message' => "No changes made"
+        ]);
+        exit;
+    }
+
+    db_update("users", [
+        'name' => $data['name'],
+        'phone' => $data['phone'],
+        'email' => $data['email'],
+    ], ['id' => $user_id]);
+    $data = getData("users", ['id' => $user_id]);
+    $_SESSION['user'] = $data;
+
+    echo json_encode([
+        'status' => true, 
+        'message' => "Success",
+        'data' => $data
+    ]);
+}
 elseif(isset($_GET['getUsers'])){
     JSON::dump(getAll("users", [
         'status' => 'active',
@@ -36,16 +77,30 @@ elseif(isset($_POST['sendMessage'], $_POST['friend_id'], $_POST['message'])){
         'time' => $time,
         'status' => 'unread',
         'read_time' => 0,
+        'attachment' => ''
     ]);
 
     update_last_message($person_id, $_POST['friend_id'], $message_id);
 
-    db_insert("feature_usage", [
-        'user' => $student_id,
-        'feature' => 'chat',
+    echo json_encode(['status' => true, 'message' => "Success"]);
+}
+elseif(isset($_FILES['file_attachment'], $_POST['friend_id'])){
+    $filename = $_FILES['file_attachment']['name'];
+    $original_filename = $filename;
+    $filename = Crypto::random_filename().".".pathinfo($filename, PATHINFO_EXTENSION);
+    move_uploaded_file($_FILES['file_attachment']['tmp_name'], "../../uploads/".$filename);
+    $message_id = db_insert("messages", [
+        'sender' => $person_id,
+        'receiver' => $_POST['friend_id'],
+        'message' => $original_filename,
+        'type' => 'file',
         'time' => $time,
-        'date' => date('Y-m-d'),
+        'status' => 'unread',
+        'read_time' => 0,
+        'attachment' => $filename
     ]);
+
+    update_last_message($person_id, $_POST['friend_id'], $message_id);
 
     echo json_encode(['status' => true, 'message' => "Success"]);
 }
@@ -76,9 +131,11 @@ elseif (isset($_GET['getChatHeads'])) {
         $row['user_data'] = $people[$friend_id] ?? $default_person;
 
         $row['ago'] = time_ago($row['time']);
-        $row['sender_name'] = $row['sender'] == $person_id ? "You" : $row['user_data']['name'];
+        $row['sender_name'] = $row['sender'] == $person_id ? "me" : $row['user_data']['name'];
         $row['chat_type'] = "friend";
         $row['message'] = strip_tags($row['message']);
+        //max 6 words
+        $row['message'] = Strings::words($row['message'], 6);
         $row['unreads'] = db_get_count("messages", "id", [
             'receiver' => $person_id,
             'sender' => $friend_id,
@@ -127,7 +184,9 @@ elseif (isset($_GET['getMessages'])) {
     $user_id = $person_id;
     $friend_type = $_GET['friend_type'] ?? "student";
 
-    $people_data = get_people([$user_id, $friend_id]);
+    $people_data = getAll("users", "id", [
+        'id' => [$user_id, $friend_id]
+    ]);
 
     $user_data = $people_data[$user_id];
     $friend_data = $people_data[$friend_id];
@@ -139,7 +198,7 @@ elseif (isset($_GET['getMessages'])) {
     while ($row = $read->fetch_assoc()) {
         $row['user_data'] = $user_id == $row['sender'] ? $user_data : $friend_data;
         $row['ago'] = time_ago($row['time']);
-        $row['sender_type'] = $user_id == $row['sender'] ? "user" : "friend";
+        $row['sender_type'] = $user_id == $row['sender'] ? "me" : "friend";
         $is_you_the_sender = $user_id == $row['sender'];
         if(!$is_you_the_sender){
             array_push($to_mark_read, $row['id']);

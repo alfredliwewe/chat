@@ -156,11 +156,12 @@ class Strings
 	public static function words($stmt, $length=6)
 	{
 		$chars = explode(" ", $stmt);
-		if (count($chars) > $length) {
+		$count = count($chars);
+		if ($count > $length) {
 			$chars = array_slice($chars, 0, $length);
 		}
 
-		return implode(" ", $chars);
+		return implode(" ", $chars).($count > $length ? "..." : "");
 	}
 }
 

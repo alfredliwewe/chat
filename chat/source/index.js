@@ -1,6 +1,8 @@
 const { useEffect, useState, useContext, createContext } = React;
 import { Header } from "./core/Header.js";
 import { SendMessage } from "./core/SendMessage.js";
+import { Content } from "./core/Content.js";
+import { AccountSettingsDialog } from "./core/AccountSetting.js";
 
 export const Context = createContext({});
 
@@ -80,6 +82,10 @@ function Index() {
     });
     const [search, setSearch] = useState("");
     const [users, setUsers] = useState([]);
+    const [open, setOpen] = useState({
+        settings: false,
+        sidebar: false
+    });
 
     const getUser = () => {
         $.get("api/", { getUser: "true" }, res => setUser(res));
@@ -90,7 +96,14 @@ function Index() {
     }
 
     const getChatHeads = () => {
-        $.get("api/", { getChatHeads: "true" }, res => setChatHeads(res));
+        $.get("api/", { getChatHeads: "true" }, res => {
+            if (!Array.isArray(res)) {
+                Toast("Failed to load chat heads");
+                console.log(res);
+                return;
+            }
+            setChatHeads(res)
+        });
     }
 
     useEffect(() => {
@@ -119,6 +132,14 @@ function Index() {
             clearInterval(interval);
         }
     }, []);
+
+    useEffect(() => {
+        if (user.id != 0) {
+            $.post("api/", { updateUser: "true", data: JSON.stringify(user) }, res => {
+                console.log(res);
+            });
+        }
+    }, [user]);
     return (
         <Context.Provider value={{ user, setUser, friend, setFriend, search, setSearch }}>
             <aside
@@ -131,15 +152,24 @@ function Index() {
 
                 <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100 bg-white">
                     <div className="flex items-center space-x-3">
-                        <img src={"../uploads/" + user.picture} alt="My Profile" className="w-10 h-10 rounded-full border-2 border-indigo-100" />
-                        <div>
+                        <img
+                            src={"../uploads/" + user.picture}
+                            alt="My Profile"
+                            className="w-10 h-10 rounded-full border-2 border-indigo-100"
+                            onClick={() => setOpen({ ...open, settings: true })}
+                            onError={e => {
+                                e.target.onerror = null;
+                                e.target.src = "../uploads/default_avatar.png"
+                            }}
+                        />
+                        <div onClick={() => setOpen({ ...open, settings: true })} className="cursor-pointer">
                             <h2 className="text-lg font-bold text-gray-800">{user.name}</h2>
                             <p className="text-xs text-green-500 font-medium flex items-center gap-1">
                                 <span className="w-2 h-2 rounded-full bg-green-500"></span> Online
                             </p>
                         </div>
                     </div>
-                    <a href="login.php" className="text-gray-400 hover:text-red-500 transition-colors" title="Logout">
+                    <a href="../logout.php" className="text-gray-400 hover:text-red-500 transition-colors" title="Logout">
                         <i className="fas fa-sign-out-alt text-xl"></i>
                     </a>
                 </div>
@@ -235,63 +265,23 @@ function Index() {
 
             <div className="fixed inset-0 bg-black/50 z-10 hidden md:hidden" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-            <main className="flex-1 flex flex-col h-full bg-white relative w-full">
+            {friend.id != 0 && <main className="flex-1 flex flex-col h-full bg-white relative w-full">
 
                 <Header />
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50" id="chatContainer">
-
-                    <div className="flex justify-center mb-4">
-                        <span className="text-xs text-gray-400 bg-gray-200 px-3 py-1 rounded-full">Today</span>
-                    </div>
-
-                    <div className="flex items-end">
-                        <img src="https://ui-avatars.com/api/?name=Alice+Smith&background=random" className="w-8 h-8 rounded-full mb-1 mr-2 invisible md:visible" />
-                        <div className="message-bubble bg-white text-gray-700 p-4 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100">
-                            <p className="text-sm">Hey! How are you doing today?</p>
-                            <span className="text-[10px] text-gray-400 block mt-1 text-right">10:30 AM</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-end justify-end">
-                        <div className="message-bubble bg-indigo-600 text-white p-4 rounded-2xl rounded-br-sm shadow-md">
-                            <p className="text-sm">I'm good, thanks! Just working on the new project interface. It's coming along nicely.</p>
-                            <div className="flex justify-end items-center gap-1 mt-1">
-                                <span className="text-[10px] text-indigo-200">10:32 AM</span>
-                                <i className="fas fa-check-double text-[10px] text-indigo-200"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-end">
-                        <img src="https://ui-avatars.com/api/?name=Alice+Smith&background=random" className="w-8 h-8 rounded-full mb-1 mr-2 invisible md:visible" />
-                        <div className="message-bubble bg-white text-gray-700 p-4 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100">
-                            <p className="text-sm">That sounds great! Can you show me what you have so far?</p>
-                            <span className="text-[10px] text-gray-400 block mt-1 text-right">10:35 AM</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-end justify-end">
-                        <div className="message-bubble bg-indigo-600 text-white p-4 rounded-2xl rounded-br-sm shadow-md">
-                            <p className="text-sm">Sure, let me send you a screenshot.</p>
-                            <div className="flex justify-end items-center gap-1 mt-1">
-                                <span className="text-[10px] text-indigo-200">10:36 AM</span>
-                                <i className="fas fa-check-double text-[10px] text-indigo-200"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-end">
-                        <img src="https://ui-avatars.com/api/?name=Alice+Smith&background=random" className="w-8 h-8 rounded-full mb-1 mr-2 invisible md:visible" />
-                        <div className="message-bubble bg-white text-gray-700 p-4 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100">
-                            <p className="text-sm">Are we still meeting later?</p>
-                            <span className="text-[10px] text-gray-400 block mt-1 text-right">10:42 AM</span>
-                        </div>
-                    </div>
-                </div>
+                <Content />
 
                 <SendMessage />
-            </main>
+            </main>}
+
+            {friend.id == 0 && <main className="flex-1 flex flex-col h-full bg-white items-center justify-center w-full">
+                <div className="text-gray-500 text-xl">Click on a chat head to start a chat</div>
+            </main>}
+
+            <AccountSettingsDialog
+                open={open.settings}
+                onClose={() => setOpen({ ...open, settings: false })}
+            />
         </Context.Provider>
     )
 }
