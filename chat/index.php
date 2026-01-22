@@ -38,7 +38,8 @@ require_once "../config.php";
 	<div id="root" class="h-screen flex overflow-hidden bg-gray-100"></div>
 </body>
 <?php 
-$index = file_get_contents("compiled/index.txt");
+$folders = glob("compiled*", GLOB_ONLYDIR);
+$folder = $folders[0] ?? "compiled_v1";
 ?>
-<script type="module" src="compiled/<?=$index?>"></script>
+<script type="module" src="<?=$folder?>/index.js"></script>
 </html>
