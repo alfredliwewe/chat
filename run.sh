@@ -2,10 +2,13 @@ clear
 echo "Enter folder name to compile"
 #read folder
 folder="chat"
-# clear folder
-rm -rf $folder/compiled
+# delete folders that start with compiled
+rm -rf $folder/compiled*
+
+#generate a unique folder name
+timestamp=$(date +%s)
 
 echo "Compiling JSX..."
-npx babel $folder/source --out-dir $folder/compiled --presets=@babel/preset-react
+npx babel $folder/source --out-dir $folder/compiled-$timestamp --presets=@babel/preset-react
 #echo "Student JSX compiled successfully"
-python3 run.py $folder
+#python3 run.py $folder
