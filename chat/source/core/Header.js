@@ -1,5 +1,6 @@
 const { useEffect, useState, useContext, createContext } = React;
 import { Context } from "../index.js";
+import { formatRelativeTime } from "../utilities.js";
 
 export function Header() {
     const { friend, setFriend } = useContext(Context);
@@ -23,7 +24,7 @@ export function Header() {
                 </div>
                 <div className="ml-4">
                     <h3 className="font-bold text-gray-800 text-lg leading-tight">{friend.name}</h3>
-                    <p className="text-xs text-green-500">Active now</p>
+                    <p className="text-xs text-green-500">Active {formatRelativeTime(friend.last_seen)}</p>
                 </div>
             </div>
             <div className="flex items-center space-x-6 text-gray-400">

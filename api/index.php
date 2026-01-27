@@ -23,6 +23,8 @@ if(isset($_POST['user_login'], $_POST['email'], $_POST['password'])){
             $_SESSION['user'] = $user;
             $_SESSION['user_id'] = $user['id'];
 
+            setcookie("chat_user_id", $user['id'], $time + (3600 * 24 * 30), "./");
+
             echo json_encode([
                 'status' => true,
                 'message' => 'Login successful',

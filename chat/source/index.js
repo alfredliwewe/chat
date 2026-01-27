@@ -212,7 +212,7 @@ function Index() {
                                                 e.target.src = "../uploads/default_avatar.png"
                                             }}
                                         />
-                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                                        {chatHead.is_active && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>}
                                     </div>
                                     <div className="ml-4 flex-1">
                                         <div className="flex justify-between items-baseline mb-1">
@@ -248,7 +248,7 @@ function Index() {
                                                 e.target.src = "../uploads/default_avatar.png"
                                             }}
                                         />
-                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                                        {chatHead.is_active && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>}
                                     </div>
                                     <div className="ml-4 flex-1">
                                         <div className="flex justify-between items-baseline mb-1">

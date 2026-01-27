@@ -81,6 +81,18 @@ export function SendMessage() {
                             getPictures();
                         }}
                     />
+                    <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => setOpen({
+                                ...open,
+                                attach: false
+                            })}
+                        >
+                            Close
+                        </Button>
+                    </Box>
                 </Box>
             </Dialog>
         </>

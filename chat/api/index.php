@@ -1,11 +1,11 @@
 <?php 
 session_start();
 if (!isset($_SESSION['user'], $_SESSION['user_id'])) {
-echo json_encode([
-	"status" => "error",
-	"message" => "Unauthorized"
-]);
-exit;
+    echo json_encode([
+        "status" => "error",
+        "message" => "Unauthorized"
+    ]);
+    exit;
 }
 require "../../includes/String.php";
 require_once "../../functions.php";
@@ -63,10 +63,17 @@ elseif(isset($_POST['updateUser'], $_POST['data'])){
     ]);
 }
 elseif(isset($_GET['getUsers'])){
-    JSON::dump(getAll("users", [
+    $rows = getAll("users", [
         'status' => 'active',
         'id !=' => $user_id
-    ]));
+    ]);
+
+    foreach ($rows as &$row) {
+        $row['is_active'] = (int)$row['last_seen'] + 30 > $time;
+        unset($row['password']);
+    }
+
+    JSON::dump($rows);
 }
 elseif(isset($_POST['sendMessage'], $_POST['friend_id'], $_POST['message'])){
     $message_id = db_insert("messages", [
@@ -112,6 +119,10 @@ elseif (isset($_GET['getChatHeads'])) {
     // JSON::dump($chat_friends);
     // exit;
 
+    db_update("users", [
+        'last_seen' => $time
+    ], ['id' => $person_id]);
+
     $messages = getAll("messages", "id", [
         'id' => array_column($chat_friends, 'message')
     ]);
@@ -141,6 +152,7 @@ elseif (isset($_GET['getChatHeads'])) {
             'sender' => $friend_id,
             'status' => ['sent','unread']
         ]);
+        $row['is_active'] = (int)($row['user_data']['last_seen']) + 30 > $time; //active if last seen within 30 seconds
         array_push($rows, $row);
     }
 

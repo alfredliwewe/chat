@@ -1,3 +1,22 @@
+<?php
+session_start();
+require "includes/String.php";
+require_once "functions.php";
+$db = new mysql_like("db.db");
+require_once "config.php";
+
+if(isset($_COOKIE['chat_user_id'])){
+    $user = getData("users", [
+        'id' => $_COOKIE['chat_user_id']
+    ]);
+    if($user){
+        $_SESSION['user'] = $user;
+        $_SESSION['user_id'] = $user['id'];
+        header("Location: chat/");
+        exit;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +25,7 @@
     <title>Login - Chat System</title>
     <script src="tailwind.js"></script>
     <!--jquery-->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../resources/vendor/jquery/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {

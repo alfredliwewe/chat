@@ -1,8 +1,21 @@
 <?php
+session_start();
 require "includes/String.php";
 require_once "functions.php";
 $db = new mysql_like("db.db");
 require_once "config.php";
+
+if(isset($_COOKIE['chat_user_id'])){
+    $user = getData("users", [
+        'id' => $_COOKIE['chat_user_id']
+    ]);
+    if($user){
+        $_SESSION['user'] = $user;
+        $_SESSION['user_id'] = $user['id'];
+        header("Location: chat/");
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

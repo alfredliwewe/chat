@@ -307,6 +307,33 @@ const uuidv4 = () => {
     });
 }
 
+function formatRelativeTime(unixTimestamp) {
+    const now = Math.floor(Date.now() / 1000);
+    const diff = now - unixTimestamp;
+
+    if (diff < 5) return 'now';
+
+    const units = [
+        { label: 's', seconds: 1 },
+        { label: 'm', seconds: 60 },
+        { label: 'h', seconds: 3600 },
+        { label: 'd', seconds: 86400 },
+        { label: 'w', seconds: 604800 },
+        { label: 'mo', seconds: 2592000 },
+        { label: 'y', seconds: 31536000 }
+    ];
+
+    // Iterate backwards to find the largest applicable unit
+    for (let i = units.length - 1; i >= 0; i--) {
+        if (diff >= units[i].seconds) {
+            const count = Math.floor(diff / units[i].seconds);
+            return `${count}${units[i].label}`;
+        }
+    }
+
+    return 'a while ago';
+}
+
 const config = {
     comments_per_page: 4,
     bg_dark: '#121212',
@@ -330,5 +357,6 @@ export {
     isNumber,
     numberToWords,
     uuidv4,
-    config
+    config,
+    formatRelativeTime
 }
